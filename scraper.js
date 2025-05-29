@@ -50,20 +50,18 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
             const detailPage = await browser.newPage();
             await detailPage.goto(prod.link, { waitUntil: "networkidle2" });
 
-            // Deskripsi
             let rawDescription = "-";
-            const descriptionSelectors = [
+            const selectors = [
               "#viTabs_0_is",
               "#vi-desc-maincntr",
               "[itemprop='description']",
               "#vi-desc-content",
             ];
 
-            for (const selector of descriptionSelectors) {
+            for (const selector of selectors) {
               rawDescription = await detailPage
                 .$eval(selector, (el) => el.innerText)
                 .catch(() => null);
-
               if (rawDescription) break;
             }
 
@@ -73,33 +71,21 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
               ? await cleanDescriptionWithAI(rawDescription, aiProvider)
               : rawDescription;
 
-            // eBay Item Number (ambil dari DOM setelah "eBay item number:")
-            let ebayItemNumber = "-";
+            // Extract eBay Item Number
+            let itemNumber = "-";
             try {
-              ebayItemNumber = await detailPage.$$eval(
-                "span.ux-textspans",
-                (spans) => {
-                  for (let i = 0; i < spans.length; i++) {
-                    const current = spans[i];
-                    if (
-                      current.innerText.trim().toLowerCase() ===
-                        "ebay item number:" &&
-                      spans[i + 1]
-                    ) {
-                      const value = spans[i + 1].innerText.trim();
-                      // Ambil hanya angka dengan regex
-                      const match = value.match(/\d+/);
-                      return match ? match[0] : "-";
-                    }
-                  }
-                  return "-";
+              itemNumber = await detailPage.$$eval(
+                "span.ux-textspans.ux-textspans--BOLD",
+                (els) => {
+                  const match = els.find((el) => el.textContent.match(/^\d+$/));
+                  return match?.textContent.trim() || "-";
                 }
               );
             } catch {
-              ebayItemNumber = "-";
+              itemNumber = "-";
             }
-            prod.itemNumber = ebayItemNumber;
-            
+            prod.itemNumber = itemNumber;
+
             await detailPage.close();
           } catch {
             prod.description = "-";
