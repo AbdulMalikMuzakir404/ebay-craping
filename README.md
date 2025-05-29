@@ -57,6 +57,7 @@ node index.js [options]
 | `--limit`    | `-l`  | `0`     | Batas jumlah produk yang diambil (0 = ambil semua)                        |
 | `--headless` |       | `true`  | Jalankan Puppeteer secara headless (`true` atau `false`)                  |
 | `--slowmo`   |       | `0`     | Delay antar aksi browser (dalam milidetik)                                |
+| `--exp`      |       | `null`  | Ekspor hasil ke file (json atau csv)                                      |
 
 ---
 
