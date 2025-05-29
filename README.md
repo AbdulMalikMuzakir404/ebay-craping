@@ -120,7 +120,7 @@ Hasil scraping akan ditampilkan di console dalam format JSON seperti ini:
 ├── index.js        # Entry point CLI
 ├── scraper.js      # Logic scraping eBay
 ├── utils.js        # Fungsi untuk ringkasan AI
-├── .env            # Tempat menyimpan API key (jangan diupload!)
+├── .env            # Tempat menyimpan API key 
 └── README.md       # Dokumentasi proyek
 ```
 
