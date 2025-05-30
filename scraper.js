@@ -5,7 +5,11 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
   const limit = options.limit || 0;
 
   if (aiProvider) {
-    console.log(`🧠 Menggunakan AI Provider: ${aiProvider.toUpperCase()}`);
+    console.log(
+      `🧠 Menggunakan AI Provider: ${aiProvider.toUpperCase()} (${
+        options.model
+      })`
+    );
   } else {
     console.log("⚠️  Tanpa AI: Deskripsi tidak diringkas.");
   }
@@ -22,9 +26,7 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
   let currentPage = 1;
   const products = [];
 
-  const loadingInterval = setInterval(() => {
-    process.stdout.write(".");
-  }, 300);
+  const loadingInterval = setInterval(() => process.stdout.write("."), 300);
 
   try {
     while (true) {
@@ -68,23 +70,20 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
             rawDescription = rawDescription?.trim() || "-";
 
             prod.description = aiProvider
-              ? await cleanDescriptionWithAI(rawDescription, aiProvider)
+              ? await cleanDescriptionWithAI(
+                  rawDescription,
+                  aiProvider,
+                  options.model
+                )
               : rawDescription;
 
-            // Extract eBay Item Number
-            let itemNumber = "-";
-            try {
-              itemNumber = await detailPage.$$eval(
-                "span.ux-textspans.ux-textspans--BOLD",
-                (els) => {
-                  const match = els.find((el) => el.textContent.match(/^\d+$/));
-                  return match?.textContent.trim() || "-";
-                }
-              );
-            } catch {
-              itemNumber = "-";
-            }
-            prod.itemNumber = itemNumber;
+            prod.itemNumber = await detailPage.$$eval(
+              "span.ux-textspans.ux-textspans--BOLD",
+              (els) => {
+                const match = els.find((el) => /^\d+$/.test(el.textContent));
+                return match?.textContent.trim() || "-";
+              }
+            );
 
             await detailPage.close();
           } catch {

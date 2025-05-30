@@ -50,14 +50,15 @@ node index.js [options]
 
 ### 🧾 Opsi CLI
 
-| Opsi         | Alias | Default | Deskripsi                                                                 |
-|--------------|-------|---------|---------------------------------------------------------------------------|
-| `--q`        | `-q`  | `nike`  | Kata kunci pencarian di eBay                                              |
-| `--ai`       |       | `null`  | Provider AI untuk ringkasan deskripsi: `openai`, `huggingface`, `deepseek` |
-| `--limit`    | `-l`  | `0`     | Batas jumlah produk yang diambil (0 = ambil semua)                        |
-| `--headless` |       | `true`  | Jalankan Puppeteer secara headless (`true` atau `false`)                  |
-| `--slowmo`   |       | `0`     | Delay antar aksi browser (dalam milidetik)                                |
-| `--exp`      |       | `null`  | Ekspor hasil ke file (json atau csv)                                      |
+| Opsi         | Alias | Default | Deskripsi                                                                                          |
+|--------------|-------|---------|----------------------------------------------------------------------------------------------------|
+| `--q`        | `-q`  | `nike`  | Kata kunci pencarian di eBay                                                                       |
+| `--ai`       |       | `null`  | Provider AI untuk ringkasan deskripsi: `openai`, `huggingface`, `deepseek`                         |
+| `--model`    | `-m`  | `null`  | Untuk memilih ingin menggunakan model ai yang akan di gunakan contoh `openai` menggunakan `gpt-4`  |
+| `--limit`    | `-l`  | `0`     | Batas jumlah produk yang diambil (0 = ambil semua)                                                 |
+| `--headless` |       | `true`  | Jalankan Puppeteer secara headless (`true` atau `false`)                                           |
+| `--slowmo`   |       | `0`     | Delay antar aksi browser (dalam milidetik)                                                         |
+| `--exp`      |       | `null`  | Ekspor hasil ke file (json atau csv)                                                               |
 
 ---
 
