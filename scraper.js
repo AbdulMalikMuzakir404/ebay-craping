@@ -17,12 +17,13 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
   console.log("🔄 Memulai scraping produk dari eBay...");
 
   const browser = await puppeteer.launch({
-    headless: options.headless !== false,
+    headless: String(options.headless).toLowerCase() !== "false",
     slowMo: options.slowMo || 0,
     defaultViewport: null,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
-  const page = await browser.newPage();
 
+  const page = await browser.newPage();
   let currentPage = 1;
   const products = [];
 
@@ -31,7 +32,13 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
   try {
     while (true) {
       const url = `https://www.ebay.com/sch/i.html?_from=R40&_nkw=${keyword}&_sacat=0&rt=nc&_pgn=${currentPage}`;
-      await page.goto(url, { waitUntil: "networkidle2" });
+      try {
+        await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
+      } catch (err) {
+        console.error(`❌ Gagal membuka halaman ${url}`);
+        console.error("Alasan:", err.message);
+        break;
+      }
 
       const pageProducts = await page.$$eval(".s-item", (items) =>
         items.map((item) => {
@@ -50,7 +57,10 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
         if (prod.link !== "-") {
           try {
             const detailPage = await browser.newPage();
-            await detailPage.goto(prod.link, { waitUntil: "networkidle2" });
+            await detailPage.goto(prod.link, {
+              waitUntil: "networkidle2",
+              timeout: 60000,
+            });
 
             let rawDescription = "-";
             const selectors = [
@@ -86,7 +96,9 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
             );
 
             await detailPage.close();
-          } catch {
+          } catch (err) {
+            console.error(`❌ Gagal mengambil detail dari ${prod.link}`);
+            console.error("Alasan:", err.message);
             prod.description = "-";
             prod.itemNumber = "-";
           }
@@ -105,6 +117,8 @@ async function scrapeEbayProducts(keyword, aiProvider = null, options = {}) {
 
       currentPage++;
     }
+  } catch (mainErr) {
+    console.error("❌ Error utama:", mainErr.message);
   } finally {
     clearInterval(loadingInterval);
     await browser.close();
